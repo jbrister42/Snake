@@ -7,11 +7,20 @@ Created on Thu Aug 27 11:01:35 2020
 import datetime
 import pygame
 import random
+import math
 
 class body():
-    def __init__(self,x,y):
+    def __init__(self,x,y,phase,ydash):
         self.x=x
         self.y=y
+        self.phase=phase
+        self.ydash=ydash
+
+amp = 4
+def wiggle(cor, phase):
+    add = amp*math.cos(phase)
+    cor += add
+    return cor
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -19,7 +28,7 @@ screen = pygame.display.set_mode((800,600))
 
 #pygame.display.update()
 
-background = pygame.image.load('background.png')
+background = pygame.image.load('background.png') # 'grass.png' or 'background.png'
 
 randx = range(20,790,10)
 randy = range(20,590,10)
@@ -32,19 +41,19 @@ eat = False
 #snake
 segments = []
 for i in range(3):
-    segments.append(body(400,300+i*20))
+    segments.append(body(400,300+i*20,0.4*i,300+i*20))
 
 def blit(image,x,y):
     screen.blit(image,(x,y))
     
 direct = "" 
 
-speed = 10
+speed = 15
 score = 0 
 font = pygame.font.SysFont(None, 72)
 wait = 0
 upped = True
-
+gamed = False
 is_running = True
 while is_running:
     clock.tick(speed)
@@ -62,28 +71,32 @@ while is_running:
     if direct=="right":
         segments.remove(segments[len(segments)-1])
         if segments[0].x >= 790:
-            segments.insert(0, body(0,segments[0].y))
+            segments.insert(0, body(0,segments[0].y,segments[0].phase+0.4,segments[0].y))
         else:
-            segments.insert(0, body(segments[0].x+22,segments[0].y))
+            segments.insert(0, body(segments[0].x+22,segments[0].y,segments[0].phase+0.4,segments[0].y))
     elif direct == "left":
         segments.remove(segments[len(segments)-1])
         if segments[0].x <= 10:
-            segments.insert(0, body(800,segments[0].y))
+            segments.insert(0, body(800,segments[0].y,segments[0].phase+0.4,segments[0].y))
         else:
-            segments.insert(0, body(segments[0].x-22,segments[0].y))
+            segments.insert(0, body(segments[0].x-22,segments[0].y,segments[0].phase+0.4,segments[0].y))
     elif direct == "up":
         segments.remove(segments[len(segments)-1])
         if segments[0].y <= 10:
-            segments.insert(0, body(segments[0].x, 590))
+            segments.insert(0, body(segments[0].x, 590,segments[0].phase+0.4,segments[0].y))
         else:
-            newhead = [body(segments[0].x ,segments[0].y-22)]
+            newhead = [body(segments[0].x ,segments[0].y-22,segments[0].phase+0.4,segments[0].y)]
             segments = newhead+segments
     else:
         segments.remove(segments[len(segments)-1])
         if segments[0].y >= 590:
-            segments.insert(0, body(segments[0].x, 0))
+            segments.insert(0, body(segments[0].x, 0,segments[0].phase+0.4,segments[0].y))
         else:
-            segments.insert(0, body(segments[0].x,segments[0].y + 22))
+            segments.insert(0, body(segments[0].x,segments[0].y + 22,segments[0].phase+0.4,segments[0].y))
+    
+    for b in segments[1:]:
+        b.ydash = wiggle(b.ydash, b.phase)
+        b.phase -= 0.4
     
     if abs(segments[0].x-foodx-5)<20 and abs(segments[0].y-foody-5)<20:
         eat = True
@@ -93,7 +106,7 @@ while is_running:
         foodx = random.choice(randx)
         foody = random.choice(randy)
         eat = False
-        segments.append(body(segments[len(segments)-1].x,segments[len(segments)-1].y))
+        segments.append(body(segments[len(segments)-1].x,segments[len(segments)-1].y,segments[len(segments)-1].phase+0.4,segments[len(segments)-1].ydash))
     
     if score != 0 and score % 10 == 9:
         upped = False
@@ -115,19 +128,20 @@ while is_running:
         if part.x == segments[0].x :
             if part.y == segments[0].y:
                 is_running = False
+                gamed = True
                 gameover = font.render("GAME OVER", True, (0,0,0))
                 go_wid = pygame.Surface.get_width(gameover)
          
     score_img = font.render(str(score), True, (0,0,0)) 
     blit(background,0,0)
     blit(score_img, 400,50)
-    if not is_running:
+    if not is_running and gamed:
         blit(gameover, 400 - go_wid/2,250)
     if wait > 0:
         wait-=1
         blit(msg, 430-wid/2, 100)
     for segment in segments:
-        pygame.draw.rect(screen, (0,0,0), (segment.x, segment.y, 20,20))    
+        pygame.draw.rect(screen, (0,0,0), (segment.x, segment.ydash, 20,20))    
     blit(food,foodx,foody)
     pygame.display.update()
 
