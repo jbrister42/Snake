@@ -105,6 +105,7 @@ while is_running:
                 speed += 5
             wait = speed*2
             msg = font.render("Speed up", True, (0,0,0))
+            wid = pygame.Surface.get_width(msg)
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -115,15 +116,16 @@ while is_running:
             if part.y == segments[0].y:
                 is_running = False
                 gameover = font.render("GAME OVER", True, (0,0,0))
+                go_wid = pygame.Surface.get_width(gameover)
          
-    score_img = font.render(str(score), True, (0,0,0))  
+    score_img = font.render(str(score), True, (0,0,0)) 
     blit(background,0,0)
     blit(score_img, 400,50)
     if not is_running:
-        blit(gameover, 300,250)
+        blit(gameover, 400 - go_wid/2,250)
     if wait > 0:
         wait-=1
-        blit(msg,200,100)
+        blit(msg, 430-wid/2, 100)
     for segment in segments:
         pygame.draw.rect(screen, (0,0,0), (segment.x, segment.y, 20,20))    
     blit(food,foodx,foody)
