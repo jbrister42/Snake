@@ -4,7 +4,7 @@ Created on Thu Aug 27 11:01:35 2020
 
 @author: jbris
 """
-
+import datetime
 import pygame
 import random
 
@@ -130,3 +130,8 @@ while is_running:
     pygame.display.update()
 
 pygame.quit()
+
+datetoday = datetime.date.today()
+of = open('scores.txt', 'a')
+of.write('Score '+ str(score) + '     ' +datetoday.strftime('%d %b %Y') + '\n')
+of.close()
