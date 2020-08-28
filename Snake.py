@@ -28,7 +28,7 @@ screen = pygame.display.set_mode((800,600))
 
 #pygame.display.update()
 
-background = pygame.image.load('background.png') # 'grass.png' or 'background.png'
+background = pygame.image.load('background.png') # 'background.png'
 
 randx = range(20,790,10)
 randy = range(20,590,10)
@@ -37,7 +37,6 @@ foodx = random.choice(randx)
 foody = random.choice(randy)
 eat = False
 
-# Head
 #snake
 segments = []
 for i in range(3):
